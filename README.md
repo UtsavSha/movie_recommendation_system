@@ -31,7 +31,6 @@ movie-recommender/
 ├── app.py                 # Main Flask application logic
 ├── requirements.txt       # Dependencies
 ├── movies.pkl             # Serialized movie data
-├── similarity.pkl         # Precomputed cosine similarity matrix
 ├── templates/
 │   └── index.html         # Frontend interface
 └── static/
