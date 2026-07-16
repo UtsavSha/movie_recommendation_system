@@ -40,7 +40,16 @@ def fetch_poster(movie_id):
 
 
 def get_recommendations(movie):
-    movie_index = movies_df[movies_df['title'] == movie].index[0]
+    # 1. Search for the movie
+    matching_movies = movies_df[movies_df['title'] == movie]
+
+    # 2. Add a safety check: Did we actually find it?
+    if matching_movies.empty:
+        raise Exception(
+            "Movie not found! Please select a valid movie from the dropdown list.")
+
+    # 3. If found, continue as normal
+    movie_index = matching_movies.index[0]
     distances = similarity[movie_index]
     movie_list = sorted(list(enumerate(distances)),
                         reverse=True, key=lambda x: x[1])[1:6]
