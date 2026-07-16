@@ -41,6 +41,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* FIX 1: This forces the search bar and its dropdown to ALWAYS stay on top of the results */
+            position: relative;
+            z-index: 100;
         }
 
         h1 {
@@ -56,7 +59,7 @@
         .subtitle {
             color: var(--text-muted);
             font-size: 1.1rem;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .search-container {
@@ -88,7 +91,6 @@
         input[type="text"] {
             width: 100%;
             padding: 15px 45px 15px 25px;
-            /* Extra padding on right for the X button */
             font-size: 1.1rem;
             font-family: inherit;
             background: transparent;
@@ -102,7 +104,6 @@
             color: var(--text-muted);
         }
 
-        /* Custom Clear/Reset Button */
         .clear-btn {
             position: absolute;
             right: 15px;
@@ -112,10 +113,10 @@
             font-size: 1.2rem;
             cursor: pointer;
             display: none;
-            /* Hidden by default */
             padding: 5px;
             transition: color 0.2s ease;
             outline: none;
+            z-index: 10;
         }
 
         .clear-btn:hover {
@@ -133,11 +134,80 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 1;
         }
 
         button.recommend-btn:hover {
             transform: scale(1.03);
             box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+        }
+
+        /* --- BROWSE BUTTON --- */
+        .browse-btn {
+            margin-top: 20px;
+            background: transparent;
+            border: none;
+            color: var(--accent-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .browse-btn:hover {
+            color: var(--accent-secondary);
+        }
+
+        /* --- AUTOCOMPLETE DROPDOWN --- */
+        .autocomplete-items {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            /* Ensure this is extremely high */
+            background-color: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            margin-top: 10px;
+        }
+
+        .autocomplete-items div {
+            padding: 15px 25px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            transition: background 0.2s ease, padding-left 0.2s ease;
+            text-align: left;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--accent-primary);
+            padding-left: 30px;
+        }
+
+        .autocomplete-items div:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-track {
+            background: var(--bg-main);
+            border-radius: 0 16px 16px 0;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
         }
 
         /* --- LOADER --- */
@@ -171,9 +241,11 @@
             max-width: 1300px;
             width: 100%;
             box-sizing: border-box;
+            /* Make sure results sit behind the hero section */
+            position: relative;
+            z-index: 10;
         }
 
-        /* Responsive Grid */
         @media (max-width: 1100px) {
             .results-container {
                 grid-template-columns: repeat(4, 1fr);
@@ -209,6 +281,7 @@
                 width: 100%;
                 background: rgba(255, 255, 255, 0.05);
                 border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             input[type="text"] {
@@ -249,7 +322,6 @@
             transition: transform 0.5s ease;
         }
 
-        /* PERMANENTLY VISIBLE MOVIE INFO */
         .movie-info {
             position: absolute;
             bottom: 0;
@@ -259,7 +331,6 @@
             box-sizing: border-box;
             background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
             opacity: 1;
-            /* Title always visible */
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
@@ -269,14 +340,12 @@
             margin: 0;
             text-align: center;
             color: #fff;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        /* Hover Effects */
         .movie-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
@@ -299,10 +368,133 @@
         .movie-card:hover::after {
             box-shadow: inset 0 0 0 2px var(--accent-primary);
         }
+
+
+        /* --- ALL MOVIES MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            width: 90%;
+            max-width: 900px;
+            height: 85vh;
+            border-radius: var(--card-radius);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal-btn:hover {
+            color: var(--accent-secondary);
+        }
+
+        .modal-body {
+            flex: 1;
+            padding: 20px 30px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            align-content: start;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: var(--bg-main);
+            border-radius: 0 0 16px 0;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+
+        .modal-movie-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            /* --- THE NEW FIX --- */
+            display: flex;
+            align-items: center;
+            /* Forces perfect vertical centering */
+            padding: 0 15px;
+            /* Removed top/bottom padding */
+            min-height: 45px;
+            /* Hard-codes a safe height for the text */
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .modal-movie-item:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- SAFE DATA TRANSFER TAG -->
+    <script id="movie-data" type="application/json">
+        {{ movies | tojson }}
+    </script>
+
+    <!-- NEW MODAL FOR BROWSING ALL MOVIES -->
+    <div class="modal-overlay" id="browse-modal" onclick="closeModalOutside(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Browse Library (A-Z)</h2>
+                <button class="close-modal-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-movie-list">
+                <!-- Movie list generates here -->
+            </div>
+        </div>
+    </div>
 
     <div class="hero">
         <h1>Discover Movies</h1>
@@ -310,59 +502,138 @@
 
         <div class="search-container">
             <div class="input-wrapper">
-                <!-- Added oninput event to track when user types -->
-                <input type="text" id="movie-input" list="movie-list" placeholder="Enter a movie you love..."
-                    oninput="toggleClearBtn()">
-                <!-- New clear button -->
-                <button class="clear-btn" id="clear-btn" onclick="clearSearch()"
-                    title="Clear to see all movies">✖</button>
-
-                <datalist id="movie-list">
-                    {% for movie in movies %}
-                    <option value="{{ movie }}"></option>
-                    {% endfor %}
-                </datalist>
+                <input type="text" id="movie-input" placeholder="Enter a movie you love..." autocomplete="off">
+                <button class="clear-btn" id="clear-btn" onclick="clearSearch()" title="Clear search">✖</button>
+                <div id="autocomplete-list" class="autocomplete-items"></div>
             </div>
             <button class="recommend-btn" onclick="getRecommendations()">Recommend</button>
         </div>
+
+        <!-- NEW BUTTON TO OPEN THE ALPHABETICAL LIST -->
+        <button class="browse-btn" onclick="openModal()">Browse Full Library (A-Z)</button>
     </div>
 
     <div class="loader" id="loader"></div>
-
-    <div class="results-container" id="results">
-        <!-- Movies will be injected here by JavaScript -->
-    </div>
+    <div class="results-container" id="results"></div>
 
     <script>
-        // --- LOGIC FOR CLEAR BUTTON --- //
-        const movieInput = document.getElementById('movie-input');
-        const clearBtn = document.getElementById('clear-btn');
+        // Safely parse JSON data from the hidden script tag
+        let allMovies = [];
+        try {
+            const jsonData = document.getElementById('movie-data').textContent;
+            allMovies = JSON.parse(jsonData);
 
-        // Show 'X' only when there is text in the input
-        function toggleClearBtn() {
-            if (movieInput.value.length > 0) {
-                clearBtn.style.display = 'block';
-            } else {
-                clearBtn.style.display = 'none';
-            }
+            // Sort perfectly in alphabetical order (ignoring case)
+            allMovies.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+        } catch (e) {
+            console.error("Could not load movies array", e);
         }
 
-        // Clear input, hide 'X', and refocus to show full dropdown again
+        const movieInput = document.getElementById('movie-input');
+        const autocompleteList = document.getElementById('autocomplete-list');
+        const clearBtn = document.getElementById('clear-btn');
+
+        // --- SEARCH DROPDOWN LOGIC ---
+        movieInput.addEventListener('input', updateDropdown);
+        movieInput.addEventListener('focus', updateDropdown);
+
+        function updateDropdown() {
+            const val = movieInput.value.toLowerCase();
+            autocompleteList.innerHTML = '';
+
+            clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+
+            let filteredMovies = allMovies;
+            if (val) {
+                filteredMovies = allMovies.filter(movie => movie.toLowerCase().includes(val));
+            }
+
+            const limit = Math.min(filteredMovies.length, 100);
+
+            if (limit === 0) {
+                autocompleteList.style.display = 'none';
+                return;
+            }
+
+            for (let i = 0; i < limit; i++) {
+                const item = document.createElement('div');
+                item.innerText = filteredMovies[i];
+
+                item.addEventListener('click', function () {
+                    movieInput.value = this.innerText;
+                    autocompleteList.style.display = 'none';
+                    clearBtn.style.display = 'block';
+                });
+                autocompleteList.appendChild(item);
+            }
+            autocompleteList.style.display = 'block';
+        }
+
+        document.addEventListener('click', function (e) {
+            if (e.target !== movieInput && e.target !== autocompleteList) {
+                autocompleteList.style.display = 'none';
+            }
+        });
+
         function clearSearch() {
             movieInput.value = '';
-            toggleClearBtn();
+            clearBtn.style.display = 'none';
             movieInput.focus();
         }
 
-        // Trigger button click on "Enter" key press
         movieInput.addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
+                autocompleteList.style.display = 'none';
                 getRecommendations();
             }
         });
 
-        // --- FETCH LOGIC --- //
+
+        // --- MODAL LOGIC (BROWSE ALL MOVIES) ---
+        const modal = document.getElementById('browse-modal');
+        const modalList = document.getElementById('modal-movie-list');
+        let modalPopulated = false;
+
+        function openModal() {
+            modal.style.display = 'flex';
+
+            // Only generate the 5000+ divs the very first time they click the button to save CPU
+            if (!modalPopulated) {
+                modalList.innerHTML = '';
+                allMovies.forEach(movie => {
+                    const div = document.createElement('div');
+                    div.className = 'modal-movie-item';
+                    div.innerText = movie;
+                    div.title = movie; // show full name on hover if it's too long
+
+                    // Clicking a movie in the modal puts it in the search bar
+                    div.onclick = () => {
+                        movieInput.value = movie;
+                        closeModal();
+                        clearBtn.style.display = 'block';
+                        // Optional: Automatically trigger recommendation upon click
+                        // getRecommendations(); 
+                    };
+
+                    modalList.appendChild(div);
+                });
+                modalPopulated = true;
+            }
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function closeModalOutside(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+
+        // --- FETCH LOGIC ---
         async function getRecommendations() {
             const resultsDiv = document.getElementById('results');
             const loader = document.getElementById('loader');
@@ -372,16 +643,13 @@
                 return;
             }
 
-            // Clear previous results and show loader
             resultsDiv.innerHTML = '';
             loader.style.display = 'block';
 
             try {
                 const response = await fetch('/recommend', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ movie: movieInput.value })
                 });
 
